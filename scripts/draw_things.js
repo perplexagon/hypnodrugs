@@ -3,8 +3,7 @@ function drawBox() {
 	console.log(canvas);
 
 	var context = canvas.getContext("2d");
-	var centerX = context.canvas.width / 2;
-	var centerY = context.canvas.height / 2;
+	var center = [(context.canvas.width / 2), (context.canvas.height / 2)];
 
 	spirals = []
 	spirals[1] = createSpiral();
@@ -12,34 +11,44 @@ function drawBox() {
 	// 	spirals[i] = createSpiral();
 	// }
 
-	for (spiralNum in spirals) {
-		spiral = spirals[spiralNum];
-		for (point in spiral) {
+	spirals.forEach(function(spiral) {
+		spiral.forEach(function(point, pointIndex) {
 			context.beginPath();
-			if (typeof spiral[point-1] !== 'undefined') {
-				var lastPoint = [(spiral[point-1][0] + centerX), (spiral[point-1][1] + centerY)];
-			} else {
-				var lastPoint = [centerX, centerY];
-			}
-			context.moveTo(...lastPoint);
-			context.lineTo((spiral[point][0] + centerX), (spiral[point][1] + centerY));
+			var lp = lastPoint(spiral, pointIndex);
+			context.moveTo(lp[0]+center[0], lp[1] + center[1]);
+			context.lineTo((point[0] + center[0]), (point[1] + center[1]));
+			// context.strokeStyle = "#999";
+			context.strokeStyle = "#" + (pointIndex * 5);
 
-			context.strokeStyle = "#999";
-			// context.strokeStyle = "#" + (point * 5);
+			// context.arc(point[0] + center[0], point[1] + center[1], pointIndex * 2, 0, Math.PI * 2, true);
 
-			// (point * 0.05  > 1) ? context.lineWidth = (point * 0.05)  : context.lineWidth = 1;
-			context.lineWidth = 1;
+			(pointIndex * 0.05  > 1) ? context.lineWidth = (pointIndex * 0.05)  : context.lineWidth = 1;
+			// context.lineWidth = 1;
 			context.stroke();
-		}
-	}
+		});
+	});
 
 	// window.requestAnimationFrame(drawBox);
 }
 
-function createSpiral(skew = 0.7) {
+
+function lastPoint(pointArray, head) {
+	var lastPoint = pointArray[head-1];
+	if (typeof lastPoint !== 'undefined') {
+		var lastPoint = [(lastPoint[0]), (lastPoint[1])];
+	} else {
+		var lastPoint = [0, 0];
+	}
+	return lastPoint;
+}
+
+function drawSpiral(spiralPoints, center) {
+}
+
+function createSpiral(angleMult = 0.7) {
 	var points = [];
-	for (var i=0; i< 1400; i+= 3) {
-		var angle = skew * i;
+	for (var i=0; i< 1400; i+= 1) {
+		var angle = angleMult * i;
 		var a = 2;
 		var b = 2;
 		var x = (a + b * angle)*Math.cos(angle);
