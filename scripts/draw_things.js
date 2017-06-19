@@ -10,8 +10,8 @@ function drawThings(things) {
 		var length = thing.points.length
 		thing.points.forEach(function(point, pointIndex) {
 			var variant_width = (pointIndex * 0.03  > 1) ? (pointIndex * 0.03)  : 1;
-			var variant_color = 'rgb(' + 
-				Math.floor(255  * (pointIndex / length)) + ',' +
+			var variant_color = 'rgb(' +
+				Math.floor(0  * (pointIndex / length)) + ',' +
 				Math.floor(255  * (pointIndex / length)) + ',' +
 				Math.floor(255 * (pointIndex / length)) + ')';
 			drawLine(point, lastPoint(thing.points, pointIndex), 1, variant_color);
@@ -41,7 +41,7 @@ function clearCanvas() {
 
 function lastPoint(pointArray, head) {
 	var lastPoint = pointArray[head - 1];
-	return lastPoint ? lastPoint : { x : 0, y : 0 }; 
+	return lastPoint ? lastPoint : { x : 0, y : 0 };
 }
 
 
@@ -105,13 +105,13 @@ window.onload = function () {
 	// drawThings([createSpiral()]);
 }
 
-var max_mult = 1000;
+var max_mult = 10000;
 var i = max_mult;
 reverse = false;
 function animLoop() {
 	window.requestAnimationFrame(animLoop);
 	clearCanvas();
-	drawThings([createSpiral(i * 0.01)]);
+	drawThings([createSpiral(i * 0.0001)]);
 	if (reverse === false) {
 		i > -max_mult ? i -= 1 : reverse = true;
 	} else {
