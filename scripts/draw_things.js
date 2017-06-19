@@ -1,37 +1,41 @@
-function drawBox() {
-	var canvas = document.getElementById("a");
+function drawThings(things) {
+	var canvas = document.getElementById("a"),
+		context = canvas.getContext("2d"),
+		center = {
+			x : context.canvas.width / 2,
+			y: context.canvas.height / 2
+		}
 
-	var context = canvas.getContext("2d");
-	var center = {
-		x : context.canvas.width / 2,
-		y: context.canvas.height / 2
-	}
-
-	spirals = []
-	spirals[1] = createSpiral();
-	console.log(spirals[1]);
-	// for (i = 0; i<2; i++) {
-	// 	spirals[i] = createSpiral();
-	// }
-
-	spirals.forEach(function(spiral) {
-		spiral.points.forEach(function(point, pointIndex) {
+	things.forEach(function(thing) {
+		var length = thing.length
+		thing.points.forEach(function(point, pointIndex) {
 			var variant_width = (pointIndex * 0.03  > 1) ? (pointIndex * 0.03)  : 1;
-			drawLine(point, lastPoint(spiral.points, pointIndex));
+			var variant_color = 'rgb(' + 
+				Math.floor(255  * (pointIndex / length))  + ','  + 
+				Math.floor(255  * (pointIndex / length)) + ',' + 
+				Math.floor(255 * (pointIndex / length)) + ')';
+			drawLine(point, lastPoint(thing.points, pointIndex), 1, variant_color);
 		});
 	});
 
 
-	function drawLine(point_one, point_two, width = 1) {
+	function drawLine(point_one, point_two, width = 1, color = "#999") {
 		context.beginPath();
 		context.moveTo(point_one.x + center.x, point_one.y + center.y);
 		context.lineTo(point_two.x + center.x, point_two.y + center.y);
-		context.strokeStyle = "#999";
+		context.strokeStyle = color;
 		context.lineWidth = width;
 		context.stroke();
 
 	}
-	// window.requestAnimationFrame(drawBox);
+	// window.requestAnimationFrame(drawThings);
+}
+
+function clearCanvas() {
+	var canvas = document.getElementById("a"),
+		context = canvas.getContext("2d");
+
+	context.clearRect(0, 0, canvas.width, canvas.height);
 }
 
 
@@ -61,20 +65,6 @@ function createSpiral(angleMult = 0.7) {
 	return spiral;
 }
 
-window.addEventListener("resize", resizeThrottler, false);
-
-var resizeTimeout;
-function resizeThrottler() {
-	// ignore resize events as long as an actualResizeHandler execution is in the queue
-	if ( !resizeTimeout ) {
-		resizeTimeout = setTimeout(function() {
-			resizeTimeout = null;
-			actualResizeHandler();
-		 // The actualResizeHandler will execute at a rate of 15fps
-		 }, 66);
-	}
-}
-
 function resizeCanvas() {
 	var canvas = document.getElementById("a");
 
@@ -89,12 +79,37 @@ function resizeCanvas() {
 	canvas.setAttribute("height", y);
 }
 
+var resizeTimeout;
+function resizeThrottler() {
+	// ignore resize events as long as an actualResizeHandler execution is in the queue
+	if ( !resizeTimeout ) {
+		resizeTimeout = setTimeout(function() {
+			resizeTimeout = null;
+			actualResizeHandler();
+		 // The actualResizeHandler will execute at a rate of 15fps
+		 }, 66);
+	}
+}
+
 function actualResizeHandler() {
 	resizeCanvas();
-	drawBox();
+		animLoop();
+	// drawThings([createSpiral()]);
 }
+
+window.addEventListener("resize", resizeThrottler, false);
 
 window.onload = function () {
 	resizeCanvas();
-	drawBox();
+	animLoop();
+	// drawThings([createSpiral()]);
 }
+
+var i = 1000;
+function animLoop() {
+	window.requestAnimationFrame(animLoop);
+	clearCanvas();
+	drawThings([createSpiral(i * 0.01)]);
+	i > 0 ? i -= 1 : i = 1000;
+}
+
