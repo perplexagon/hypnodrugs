@@ -11,10 +11,10 @@ function drawThings(things) {
 		thing.points.forEach(function(point, pointIndex) {
 			var variant_width = (pointIndex * 0.03  > 1) ? (pointIndex * 0.03)  : 1;
 			var variant_color = 'rgb(' +
-				Math.floor(0  * (pointIndex / length)) + ',' +
-				Math.floor(255  * (pointIndex / length)) + ',' +
-				Math.floor(255 * (pointIndex / length)) + ')';
-			drawLine(point, lastPoint(thing.points, pointIndex), thing.position, 1, variant_color);
+				Math.floor(thing.color.r) + ',' +
+				Math.floor(thing.color.g) + ',' +
+				Math.floor(thing.color.b) + ')';
+			drawLine(point, lastPoint(thing.points, pointIndex), thing.position, variant_width, variant_color);
 		});
 	});
 
@@ -97,44 +97,73 @@ function resizeThrottler() {
 
 function actualResizeHandler() {
 	resizeCanvas();
-		animLoop();
+	animLoop();
 	// drawThings([createSpiral()]);
 }
 
 window.addEventListener("resize", resizeThrottler, false);
 
 window.onload = function () {
+	var max_mult = 10000;
+	var path_spiral = createSpiral(max_mult * 0.0001);
+
+	var oscillators = {
+		main_spiral : {
+			max: 10000,
+			min: -10000,
+			state: max_mult,
+			reverse: false
+		},
+		path_oscillator : {
+			max: 200,
+			min: -200,
+			state: 0,
+			reverse: false
+		},
+		red_oscillator : {
+			max: 87,
+			min: 0,
+			state: 0,
+			reverse : false
+		},
+		green_oscillator : {
+			max: 163,
+			min: 0,
+			state: 0,
+			reverse : false
+		},
+		blue_oscillator : {
+			max: 175,
+			min: 0,
+			state: 0,
+			reverse : false
+		}
+	}
+
 	resizeCanvas();
 	animLoop();
 	// drawThings([createSpiral()]);
-}
 
-var max_mult = 10000;
-var pathSpiral = createSpiral(i * 0.0001);
 
-var oscillators = {
-	main_spiral : {
-		max: 10000,
-		state: max_mult,
-		reverse: false
-	},
-	path_oscillator : {
-		max: 200,
-		state: pathSpiral.points.length,
-		reverse: false
-	}
-}
+	function animLoop() {
+		window.requestAnimationFrame(animLoop);
+		clearCanvas();
+		var path_point = {x : oscillators.path_oscillator.state, y : oscillators.path_oscillator.state};
+		var spiral_frame = createSpiral(oscillators.main_spiral.state * 0.0001, path_point);
+		spiral_frame.color = {
+			r: oscillators.red_oscillator.state,
+			g: oscillators.green_oscillator.state,
+			b: oscillators.blue_oscillator.state
+		}
+		drawThings([spiral_frame]);
 
-function animLoop() {
-	window.requestAnimationFrame(animLoop);
-	clearCanvas();
-	drawThings([createSpiral(main_spiral.state * 0.0001, {x : pathSpiral[path_oscillator.state], y : pathSpiral[path_oscillator.state]})]);
-	for (var oscillator in oscillators) {
-		if (oscillators.hasOwnProperty(oscillator)) {
-			if (oscillator.reverse === false) {
-				oscillator.state > -oscillator.max ? oscillator.state -= 1 : oscillator.reverse = true;
-			} else {
-				oscillator.state < oscillator.max ? oscillator.state += 1 : oscillator.reverse = false;
+		for (var oscillator in oscillators) {
+			if (oscillators.hasOwnProperty(oscillator)) {
+				if (oscillators[oscillator].reverse === false) {
+					oscillators[oscillator].state > oscillators[oscillator].min ? oscillators[oscillator].state -= 1 : oscillators[oscillator].reverse = true;
+				} else {
+					oscillators[oscillator].state < oscillators[oscillator].max ? oscillators[oscillator].state += 1 : oscillators[oscillator].reverse = false;
+				}
 			}
 		}
 	}
