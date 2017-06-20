@@ -110,7 +110,7 @@ window.onload = function () {
 }
 
 var max_mult = 10000;
-var path_spiral = createSpiral(i * 0.0001);
+var pathSpiral = createSpiral(i * 0.0001);
 
 var oscillators = {
 	main_spiral : {
@@ -120,7 +120,7 @@ var oscillators = {
 	},
 	path_oscillator : {
 		max: 200,
-		state: path_spiral.points.length,
+		state: pathSpiral.points.length,
 		reverse: false
 	}
 }
@@ -128,7 +128,7 @@ var oscillators = {
 function animLoop() {
 	window.requestAnimationFrame(animLoop);
 	clearCanvas();
-	drawThings([createSpiral(oscillators.main_spiral.state * 0.0001, {x : oscillators.path_spiral[path_oscillator.state], y : oscillators.path_spiral[path_oscillator.state]})]);
+	drawThings([createSpiral(main_spiral.state * 0.0001, {x : pathSpiral[path_oscillator.state], y : pathSpiral[path_oscillator.state]})]);
 	for (var oscillator in oscillators) {
 		if (oscillators.hasOwnProperty(oscillator)) {
 			if (oscillator.reverse === false) {
