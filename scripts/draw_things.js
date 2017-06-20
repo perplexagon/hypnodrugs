@@ -14,15 +14,15 @@ function drawThings(things) {
 				Math.floor(0  * (pointIndex / length)) + ',' +
 				Math.floor(255  * (pointIndex / length)) + ',' +
 				Math.floor(255 * (pointIndex / length)) + ')';
-			drawLine(point, lastPoint(thing.points, pointIndex), 1, variant_color);
+			drawLine(point, lastPoint(thing.points, pointIndex), thing.position, 1, variant_color);
 		});
 	});
 
 
-	function drawLine(point_one, point_two, width = 1, color = "#999") {
+	function drawLine(point_one, point_two, offset, width = 1, color = "#999") {
 		context.beginPath();
-		context.moveTo(point_one.x + center.x, point_one.y + center.y);
-		context.lineTo(point_two.x + center.x, point_two.y + center.y);
+		context.moveTo(point_one.x + offset.x + center.x, point_one.y + offset.y + center.y);
+		context.lineTo(point_two.x + offset.x + center.x, point_two.y + offset.y + center.y);
 		context.strokeStyle = color;
 		context.lineWidth = width;
 		context.stroke();
@@ -46,9 +46,13 @@ function lastPoint(pointArray, head) {
 
 
 
-function createSpiral(angleMult = 0.7) {
+function createSpiral(angleMult = 0.7, offset = {x : 0, y: 0}) {
 	var spiral = {
-		points : []
+		points : [],
+		position : {
+			x : offset.x,
+			y : offset.y
+		}
 	}
 
 	for (var i=0; i< 1400; i+= 1) {
@@ -106,16 +110,33 @@ window.onload = function () {
 }
 
 var max_mult = 10000;
-var i = max_mult;
-reverse = false;
+var path_spiral = createSpiral(i * 0.0001);
+
+var oscillators = {
+	main_spiral : {
+		max: 10000,
+		state: max_mult,
+		reverse: false
+	},
+	path_oscillator : {
+		max: 200,
+		state: path_spiral.points.length,
+		reverse: false
+	}
+}
+
 function animLoop() {
 	window.requestAnimationFrame(animLoop);
 	clearCanvas();
-	drawThings([createSpiral(i * 0.0001)]);
-	if (reverse === false) {
-		i > -max_mult ? i -= 1 : reverse = true;
-	} else {
-		i < max_mult ? i += 1 : reverse = false;
+	drawThings([createSpiral(oscillators.main_spiral.state * 0.0001, {x : oscillators.path_spiral[path_oscillator.state], y : oscillators.path_spiral[path_oscillator.state]})]);
+	for (var oscillator in oscillators) {
+		if (oscillators.hasOwnProperty(oscillator)) {
+			if (oscillator.reverse === false) {
+				oscillator.state > -oscillator.max ? oscillator.state -= 1 : oscillator.reverse = true;
+			} else {
+				oscillator.state < oscillator.max ? oscillator.state += 1 : oscillator.reverse = false;
+			}
+		}
 	}
 }
 
